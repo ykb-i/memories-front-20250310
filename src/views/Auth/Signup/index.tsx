@@ -45,6 +45,7 @@ export default function SignUp(props:Props) {
   // 성공, 실패 메세지중 뭘 내보낼지 선택하는 상태를 생성
   // state: 사용자 아이디 메세지 에러 상태 //
   const [userIdMessageError, setUserIdMessageError] = useState<boolean>();
+
   // 중복확인, 비밀번호 확인이 되어 있는지 확인하는 상태
   // state: 사용자 아이디 중복 확인 상태 //
   const [isUserIdChecked, setUserIdChecked] = useState<boolean>(false);
@@ -59,6 +60,7 @@ export default function SignUp(props:Props) {
   const isSignUpButtonActive = userName && userId && userPassword && userPasswordCheck && userAddress && isUserIdChecked && isUserPasswordChecked && isUserPasswordEqual;
   // variable: 회원가입 버튼 클래스 //
   const signUpButtonClass = `button ${isSignUpButtonActive ? 'primary': 'disable'} fullwidth`
+  
   // function: 다음 포스트 코드 팝업 오픈 함수 //
   const open = useDaumPostcodePopup();
 
