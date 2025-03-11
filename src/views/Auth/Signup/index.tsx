@@ -4,6 +4,7 @@ import InputBox from 'src/components/InputBox';
 import { AuthPage } from 'src/types/aliases';
 import { Address, useDaumPostcodePopup } from 'react-daum-postcode';
 
+
 interface Props{
   onPageChange: (page: AuthPage) => void;
 }
