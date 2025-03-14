@@ -3,6 +3,9 @@ import "./style.css";
 import InputBox from 'src/components/InputBox';
 import { AuthPage } from 'src/types/aliases';
 import { Address, useDaumPostcodePopup } from 'react-daum-postcode';
+import { IdCheckRequestDto } from 'src/apis/dto/request/auth';
+import { idCheckRequest } from 'src/apis';
+import { ResponseDto } from 'src/apis/dto/response';
 
 
 interface Props{
@@ -71,6 +74,22 @@ export default function SignUp(props:Props) {
     setUserAddressMessage('');
   }
 
+  // function: id check response 처리 함수 //
+  const idCheckResponse = (responseBody: null | ResponseDto) => {
+    const message = 
+      !responseBody ? '서버에 문제가 있습니다.' 
+      : responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' 
+      : responseBody.code === 'EU' ? '이미 사용중인 아이디입니다.'
+      : responseBody.code === 'VF' ? '아이디를 입력하세요.'
+      : '사용 가능한 아이디입니다.';
+      
+      const isSuccess = responseBody !== null && responseBody.code === 'SU';
+
+    setUserIdMessage(message);
+    setUserIdMessageError(!isSuccess);
+    setUserIdChecked(isSuccess);
+  }
+
   // 사용자가 값을 input에 입력할때 발생하는 이벤트 처리 함수 생성
   // event handler: 사용자 이름 변경 이벤트 처리//
   const onUserNameChangeHandler = (event:ChangeEvent<HTMLInputElement>) => {
@@ -116,28 +135,17 @@ export default function SignUp(props:Props) {
     setUserDetailAddress(value);
   }
 
-  const [existUserId, setExistUserId] = useState<string[]>([]);
-
   // 버튼 클릭 이벤트 처리 함수 생성
   // event handler: 중복 확인 버튼 클릭 이벤트 처리//
   const onCheckUserIdClickHandler = () => {
     if(!isUserIdCheckButtonActive) return;
-    // (직접 만들어봄)
-    const isDuplicate = existUserId.includes(userId);
-    const message = isDuplicate ? '이미 존재하는 아이디입니다.' : '';
-    setUserIdMessage(message);
-    
-    if(!isDuplicate){
-      setExistUserId((prev) => [...prev,userId]);
-      setUserIdMessageError(false);
-      setUserIdMessage('사용 가능한 아이디입니다.');
-      setUserIdChecked(!isDuplicate)
-    }else{
-      setUserIdMessageError(true);
-      setUserIdMessage('이미 존재하는 아이디입니다.');
-      setUserIdChecked(isDuplicate)
-    }
+
+    const requestBody: IdCheckRequestDto = { userId };
+    idCheckRequest(requestBody).then((responseBody)=>{
+      idCheckResponse(responseBody);
+    });  
   }
+
   // event handler: 주소 검색 버튼 클릭 이벤트 처리//
   const onSearchAddressClickHandler = () => {
     open({ onComplete: daumPostCompleteHandler});

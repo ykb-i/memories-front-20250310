@@ -31,7 +31,7 @@ Front-end 프로젝트
 | **React Daum Postcode** | 다음(카카오) 우편번호 검색 API를 React에서 사용 가능하게 하는 라이브러리 |
 | **React Quill** | WYSIWYG 에디터를 제공하는 라이브러리 |
 | **Day.js** | 날짜 및 시간 관리를 위한 경량 라이브러리 |
-- Dotenv : 코드 상 존재하면 안되는 값을 환경변수에 저장한다
+| **Dotenv** |  코드 상 존재하면 안되는 값을 환경변수에 저장하는 라이브러리 |
 
 
 
@@ -59,11 +59,10 @@ npm run build
 
 ## 🗂️ 폴더 구조
 ```md
-memories-front
-├- src
-├- public
-├- package.json
-
+📂 memories-front
+├── 📂 src
+├── 📂 public
+└── 📄 package.json
 ```
 
 ## 📄 라이센스
