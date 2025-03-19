@@ -31,3 +31,7 @@ export const ACCESS_TOKEN = 'accessToken';
 export const JOIN_TYPE = 'joinType';
 // variable: sns id 속성명 //
 export const SNS_ID = 'snsId';
+
+// variable: pagination 속성명 //
+export const ITEMS_PER_PAGE = 10;
+export const PAGES_PER_SECTION = 10;

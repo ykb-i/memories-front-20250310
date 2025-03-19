@@ -88,7 +88,7 @@ export const getMyDiaryRequest = async (accessToken: string) => {
 }
 
 // function: get diary API 요청 함수 //
-export const getDiaryRequest = async(diaryNumber: DiaryNumber,accessToken: string) => {
+export const getDiaryRequest = async(diaryNumber: DiaryNumber, accessToken: string) => {
   const responseBody = await axios.get(GET_DIARY_URL(diaryNumber), bearerAuthorization(accessToken))
    .then(responseSuccessHandler<GetDiaryResponseDto>)
    .catch(responseErrorHandler);
