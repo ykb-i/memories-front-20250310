@@ -1,27 +1,3 @@
-.button-group{
-	display: flex;
-	gap: 4px;
-
-	button {
-		all: unset;
-		cursor: pointer;
-
-		padding: 4px 8px;
-		background-color: var(--Lightmode-Grey4);
-
-		color: var(--White);
-	}
-
-	.is-active{
-		color: var(--Lightmode-Grey);
-		background-color: var(--Lightmode-Grey3);
-	}
-}
-
-.tiptap{
-	outline: none;
-
-	border-radius: 6px;
-	border: 1px solid var(--Lightmode-Grey3);
-	padding: 8px 16px;
+body {
+  margin: 0;
 }

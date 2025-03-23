@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 
 import TextEditor from 'src/components/textEditor';
 import { Feeling, Weather } from 'src/types/aliases';
@@ -6,20 +6,29 @@ import { Feeling, Weather } from 'src/types/aliases';
 import dayjs from 'dayjs';
 
 import './style.css';
-import { postDiaryRequest } from 'src/apis';
+import { getDiaryRequest, patchDiaryRequest, postDiaryRequest } from 'src/apis';
 import { useCookies } from 'react-cookie';
-import { ACCESS_TOKEN, DIARY_ABSOLUTE_PATH } from 'src/constants';
+import { ACCESS_TOKEN, DIARY_ABSOLUTE_PATH, DIARY_VIEW_ABSOLUTE_PATH } from 'src/constants';
 import { PostDiaryRequestDto } from 'src/apis/dto/request/diary';
 import { ResponseDto } from 'src/apis/dto/response';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
+import { GetDiaryResponseDto } from 'src/apis/dto/response/diary';
+import PatchDiaryRequestDto from 'src/apis/dto/request/diary/patch-diary.request.dto';
+import { useSignInUserStore } from 'src/stores';
 
-// component: 일기 작성 화면 컴포넌트 //
-export default function DiaryWrite() {
+// component: 일기 수정 화면 컴포넌트 //
+export default function DiaryUpdate() {
 
+  // state: 경로 변수 상태 //
+  const { diaryNumber } = useParams();
   // state: 쿠키 상태 //
   const [cookies] = useCookies();
+  // state: 로그인 사용자 아이디 상태 //
+  const { userId } = useSignInUserStore();
 
-  // state: 일기 작성 내용 상태 //
+  // state: 일기 수정 내용 상태 //
+  const [writerId, setWriterId] = useState<string>('');
+  const [writeDate, setWriteDate] = useState<string>('');
   const [weather, setWeather] = useState<Weather | ''>('');
   const [feeling, setFeeling] = useState<Feeling | ''>('');
   const [title, setTitle] = useState<string>('');
@@ -27,9 +36,6 @@ export default function DiaryWrite() {
 
   // variable: access token //
   const accessToken = cookies[ACCESS_TOKEN];
-
-  // variable: 오늘 날짜 //
-  const today = dayjs().format('YYYY-MM-DD');
 
   // variable: 날씨 컨텐츠 클래스 //
   const sunContentClass = 
@@ -79,29 +85,59 @@ export default function DiaryWrite() {
   const angryIconClass = 
     feeling === '분노' ? 'feeling-icon angry-active' : 'feeling-icon angry';
 
-  // variable: 일기 작성 가능 여부 //
+  // variable: 일기 수정 가능 여부 //
   const isActive = weather !== '' && feeling !== '' && title !== '' && content !== '';
-  // variable: 일기 작성 버튼 클래스 //
-  const writeButtonClass = isActive ? 'button middle primary' : 'button middle disable';
+  // variable: 일기 수정 버튼 클래스 //
+  const updateButtonClass = isActive ? 'button middle primary' : 'button middle disable';
 
   // function: 네비게이터 함수 //
   const navigator = useNavigate();
 
-  // function: post diary response 처리 함수 //
-  const postDiaryResponse = (responseBody: ResponseDto | null) => {
+  // function: get diary response 실행 함수 //
+  const getDiaryResponse = (responseBody: GetDiaryResponseDto | ResponseDto | null) => {
     const message = 
       !responseBody ? '서버에 문제가 있습니다.' :
       responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
-    
+      responseBody.code === 'AF' ? '인증에 실패했습니다.' :
+      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.': '';
+
     const isSuccess = responseBody !== null && responseBody.code === 'SU';
-    if (!isSuccess) {
+
+    if(!isSuccess) {
+      alert(message);
+      navigator(DIARY_ABSOLUTE_PATH)
+      return;
+    }
+
+    const { writerId, writeDate, weather, feeling, title, content } = responseBody as GetDiaryResponseDto;
+
+    setWriterId(writerId);
+    setWriteDate(writeDate);
+    setWeather(weather);
+    setFeeling(feeling);
+    setTitle(title);
+    setContent(content);
+  }
+
+  // function: patch diary response 처리 함수 //
+  const patchDiaryResponse = (responseBody: ResponseDto | null) => {
+    const message = 
+      !responseBody ? '서버에 문제가 있습니다.' :
+      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
+      responseBody.code === 'AF' ? '인증에 실패했습니다.' :
+      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.':
+      responseBody?.code === 'NP' ? '권한이 없습니다' :  '';
+
+    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+
+    if(!isSuccess) {
       alert(message);
       return;
     }
 
-    navigator(DIARY_ABSOLUTE_PATH);
-  };
+    if(!diaryNumber) return;
+    navigator(DIARY_VIEW_ABSOLUTE_PATH(diaryNumber));
+  }
 
   // event handler: 날씨 변경 이벤트 처리 //
   const onWeatherChangeHandler = (weather: Weather) => {
@@ -124,25 +160,39 @@ export default function DiaryWrite() {
     setContent(content);
   };
 
-  // event handler: 일기 작성 버튼 클릭 이벤트 처리 //
-  const onWriteButtonClickHandler = () => {
-    if (!isActive || !accessToken) return;
-
-    const requestBody: PostDiaryRequestDto = {
+  // event handler: 일기 수정 버튼 클릭 이벤트 처리 //
+  const onUpdateButtonClickHandler = () => {
+    if (!isActive || !accessToken || !diaryNumber) return;
+    
+    const requestBody: PatchDiaryRequestDto = {
       weather, feeling, title, content
-    };
-    postDiaryRequest(requestBody, accessToken).then(postDiaryResponse);
+    }
+
+    patchDiaryRequest(diaryNumber, requestBody, accessToken).then(patchDiaryResponse);
   };
 
-  // render: 일기 작성 화면 컴포넌트 렌더링 //
+  // effect: 일기 번호가 변경될 경우 실행할 함수 //
+  useEffect(() => {
+    if(!diaryNumber || !accessToken) return;
+    getDiaryRequest(diaryNumber, accessToken).then(getDiaryResponse);
+  },[diaryNumber])
+
+  // effect: 로그인 유저 아이디와 작성자 아이디가 변경될 시 실행할 함수 //
+  useEffect(() => {
+    if(writerId && userId && writerId !== userId){
+      alert('권한이 없습니다.');
+      navigator(DIARY_ABSOLUTE_PATH);
+    }
+  }, [writerId, userId]);
+  // render: 일기 수정 화면 컴포넌트 렌더링 //
   return (
-    <div id='diary-write-wrapper'>
-      <div className='write-container'>
-        <div className='write-title'>일기 작성</div>
+    <div id='diary-update-wrapper'>
+      <div className='update-container'>
+        <div className='update-title'>일기 수정</div>
         <div className='contents-container'>
           <div className='input-row-box'>
             <div className='title'>날짜</div>
-            <div className='content'>{today}</div>
+            <div className='content'>{writeDate}</div>
           </div>
           <div className='input-row-box'>
             <div className='title'>날씨</div>
@@ -186,10 +236,12 @@ export default function DiaryWrite() {
           </div>
           <div className='input-column-box'>
             <div className='title'>내용</div>
-            <TextEditor content={content} setContent={onContentChangeHandler} />
+            {content !== '' &&
+              <TextEditor content={content} setContent={onContentChangeHandler} />  
+            }
           </div>
           <div className='button-box'>
-            <div className={writeButtonClass} onClick={onWriteButtonClickHandler}>작성 완료</div>
+            <div className={updateButtonClass} onClick={onUpdateButtonClickHandler}>수정 완료</div>
           </div>
         </div>
       </div>

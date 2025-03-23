@@ -48,7 +48,7 @@ function TableItem({ diary } : TableItemProps) {
 			<div className='td'>{weather}</div>
 			<div className='td'>
 				<div className='feeling-box'>
-					<div className={feelingIconClass}></div>
+					<div className={feeling}></div>
 					<div className='feeling-text'>{feeling}</div>
 				</div>
 			</div>

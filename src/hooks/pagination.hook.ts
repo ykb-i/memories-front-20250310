@@ -1,27 +1,24 @@
 import { useEffect, useState } from "react";
 import { ITEMS_PER_PAGE, PAGES_PER_SECTION } from "src/constants";
-import { Diary } from "src/types/interfaces";
 
 
 
 const usePagination = <T>() => {
-    // state: 페이지네이션 관련 상태 //
-    const [totalList, setTotalList] = useState<T[]>([]);
-    const [totalPage, setTotalPage] = useState<number>(0);
-    const [totalSection, setTotalSection] = useState<number>(0);
-    const [currentPage, setCurrentPage] = useState<number>(0);
-    const [currentSection, setCurrentSection] = useState<number>(0);
-    const [viewList, setViewList] = useState<T[]>([]);
-    const [pageList, setPageList] = useState<number[]>([]);
+	// state: 페이지네이션 관련 상태 //
+	const [totalList, setTotalList] = useState<T[]>([]);
+	const [totalPage, setTotalPage] = useState<number>(0);
+	const [totalSection, setTotalSection] = useState<number>(0);
+	const [currentPage, setCurrentPage] = useState<number>(0);
+	const [currentSection, setCurrentSection] = useState<number>(0);
+	const [viewList, setViewList] = useState<T[]>([]);
+	const [pageList, setPageList] = useState<number[]>([]);
 
-    // function: 전체 리스트 변경 함수 //
+	// function: 전체 리스트 변경 함수 //
 	const init = (totalList:T[]) => {
 		const totalCount = totalList.length;
 		const totalPage = Math.ceil(totalCount / ITEMS_PER_PAGE);
-		console.log(totalPage);
 		setTotalPage(totalPage);
 		const totalSection = Math.ceil(totalPage / PAGES_PER_SECTION);
-		console.log(totalSection);
 		setTotalSection(totalSection);
 
 		setCurrentPage(1);
@@ -48,7 +45,7 @@ const usePagination = <T>() => {
 		setPageList(pageList);
 	}
 
-    // effect: 전체 리스트가 변경되면 실행할 함수 //
+  // effect: 전체 리스트가 변경되면 실행할 함수 //
 	useEffect(() => {
 		if(totalList.length > 0) init(totalList);
 	}, [totalList])
@@ -64,12 +61,12 @@ const usePagination = <T>() => {
 	},[currentSection]);
 
     return {
-        currentPage, setCurrentPage, 
-        currentSection, setCurrentSection, 
-        totalSection,
-        setTotalList,
-        viewList,
-        pageList
+			currentPage, setCurrentPage, 
+			currentSection, setCurrentSection, 
+			totalSection,
+			setTotalList,
+			viewList,
+			pageList
     }
 }
 
