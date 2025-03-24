@@ -25,7 +25,6 @@ export default function DiaryUpdate() {
   const [cookies] = useCookies();
   // state: 로그인 사용자 아이디 상태 //
   const { userId } = useSignInUserStore();
-
   // state: 일기 수정 내용 상태 //
   const [writerId, setWriterId] = useState<string>('');
   const [writeDate, setWriteDate] = useState<string>('');
