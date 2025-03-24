@@ -38,7 +38,6 @@ const POST_CONCENTRATION_URL = `${TEST_MODULE_URL}/concentration`;
 const GET_MEMORY_URL = `${TEST_MODULE_URL}/memory`;
 const GET_CONCENTRATION_URL = `${TEST_MODULE_URL}/concentration`;
 
-
 // function: Authorization Bearer 헤더 //
 const bearerAuthorization = (accessToken: string) => ({ headers: { 'Authorization': `Bearer ${accessToken}` } })
 
@@ -136,13 +135,13 @@ export const postMemoryRequest = async (requestBody: PostMemoryRequestDto, acces
   return responseBody;
 };
 
+// function: post concentration API 요청 함수 //
 export const postConcentrationRequest = async (requestBody: PostConcentrationRequestDto, accessToken: string) => {
   const responseBody = await axios.post(POST_CONCENTRATION_URL, requestBody, bearerAuthorization(accessToken))
     .then(responseSuccessHandler)
     .catch(responseErrorHandler)
-  
-    return responseBody;
-}
+  return responseBody;
+};
 
 // function: get memory API 요청 함수 //
 export const getMemoryRequest = async (accessToken: string) => {
@@ -157,6 +156,5 @@ export const getConcentrationRequest = async (accessToken: string) => {
   const responseBody = await axios.get(GET_CONCENTRATION_URL, bearerAuthorization(accessToken))
     .then(responseSuccessHandler<GetConcentrationResponseDto>)
     .catch(responseErrorHandler);
-  
-    return responseBody;
-}
+  return responseBody;
+};

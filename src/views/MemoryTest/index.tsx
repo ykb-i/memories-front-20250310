@@ -31,7 +31,6 @@ function Card({ memoryCard, onClick }: CardProps) {
   )
 }
 
-
 // variable: 색상 리스트 //
 const COLORS = ['#CF3832', '#A6AAA4', '#B40089', '#57A365', '#334194', '#F8F253', '#DD883D', '#00AFFF'];
 // variable: 무작위 색상 리스트 //
@@ -99,15 +98,15 @@ export default function MemoryTest() {
     if (newSelectedCards.length === 2) {
       const [first, second] = newSelectedCards;
       
-        setTimeout(() => {
-          if (first.color !== second.color) {
-            const newMemoryCards = memoryCards.map(
-              card => card.id === first.id || card.id === second.id ? { ...card, isReverse: true } : card
-            );
-            setMemoryCards(newMemoryCards);
-          }
-          setSelectedCards([]);
-        }, 500);
+      setTimeout(() => {
+        if (first.color !== second.color) {
+          const newMemoryCards = memoryCards.map(
+            card => card.id === first.id || card.id === second.id ? { ...card, isReverse: true } : card
+          );
+          setMemoryCards(newMemoryCards);
+        }
+        setSelectedCards([]);
+      }, 500);
       
     }
   };

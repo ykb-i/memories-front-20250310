@@ -1,7 +1,6 @@
-// interface: post diary request body DTO //
-import { Weather } from "src/types/aliases";
-import { Feeling } from "src/types/aliases";
+import { Feeling, Weather } from 'src/types/aliases';
 
+// interface: post diary request body DTO //
 export default interface PostDiaryRequestDto {
   weather: Weather;
   feeling: Feeling;

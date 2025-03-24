@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from 'react'
 
-import TextEditor from 'src/components/textEditor';
+import TextEditor from 'src/components/TextEditor';
 import { Feeling, Weather } from 'src/types/aliases';
 
 import dayjs from 'dayjs';

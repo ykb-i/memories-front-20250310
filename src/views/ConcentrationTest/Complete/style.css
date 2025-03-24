@@ -4,12 +4,11 @@
   gap: 30px;
 }
 
-#conc-complete-wrapper .test-box{
+#conc-complete-wrapper .test-box {
   height: 270px;
 }
 
-#conc-complete-wrapper .result-container,
-#conc-complete-wrapper .test-result-container {
+#conc-complete-wrapper .result-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,4 +21,3 @@
   font-size: 24px;
   font-weight: 700;
 }
-

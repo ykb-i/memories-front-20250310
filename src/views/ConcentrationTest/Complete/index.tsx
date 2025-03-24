@@ -5,12 +5,13 @@ import { useConcentrationTestStore } from 'src/stores';
 
 import './style.css';
 import { ConcentrationTest } from 'src/types/interfaces';
-import { useCookies } from 'react-cookie';
 import { getConcentrationRequest } from 'src/apis';
+import { useCookies } from 'react-cookie';
 import { GetConcentrationResponseDto } from 'src/apis/dto/response/test';
-import { usePagination } from 'src/hooks';
-import Pagination from 'src/components/pagination';
 import { ResponseDto } from 'src/apis/dto/response';
+import { usePagination } from 'src/hooks';
+import Pagination from 'src/components/Pagination';
+
 // interface: 집중력 검사 테이블 레코드 컴포넌트 속성 //
 interface TableItemProps {
   concentrationTest: ConcentrationTest
@@ -26,6 +27,7 @@ function TableItem({ concentrationTest }: TableItemProps) {
   // variable: 오류 차이 문자열 //
   const errorGapText = errorGap === null ? '' : errorGap > 0 ? `+${errorGap}` : errorGap;
 
+  // render: 집중력 검사 테이블 레코드 컴포넌트 렌더링 //
   return (
     <div className='tr'>
       <div className='td conc-sequence'>{sequence}</div>
@@ -47,14 +49,13 @@ export default function ConcentrationTestComplete() {
   // state: 집중력 검사 결과 상태 //
   const { measurementScore, errorCount } = useConcentrationTestStore();
 
-  // state: 페이지 처리 관리 상태 //
-  const { 
-    currentPage, setCurrentPage, 
-    currentSection, setCurrentSection, 
+  // state: 페이징 처리 관련 상태 //
+  const {
+    currentPage, setCurrentPage,
+    currentSection, setCurrentSection,
     totalSection,
     setTotalList,
-    viewList,
-    pageList 
+    viewList, pageList
   } = usePagination<ConcentrationTest>();
 
   // variable: access token //
@@ -69,21 +70,23 @@ export default function ConcentrationTestComplete() {
       !responseBody ? '서버에 문제가 있습니다.' :
       responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
       responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
-
+    
     const isSuccess = responseBody !== null && responseBody.code === 'SU';
-    if(!isSuccess) {
+    if (!isSuccess) {
       alert(message);
       return;
     }
 
     const { concentrationTests } = responseBody as GetConcentrationResponseDto;
     setTotalList(concentrationTests);
-  }; 
+  };
 
   // effect: 컴포넌트 로드시 실행할 함수 //
   useEffect(() => {
-    
-    if(!accessToken) return;
+    if (measurementScore === -1 || errorCount === -1) {
+      navigator(CONCENTRATION_TEST_ABSOLUTE_PATH);
+    }
+    if (!accessToken) return;
     getConcentrationRequest(accessToken).then(getConcentrationResponse);
   } ,[]);
 
@@ -105,17 +108,16 @@ export default function ConcentrationTestComplete() {
               </div>
               <div className='result-box'>
                 <div className='title'>오류</div>
-                <div className='error'>{errorCount}/20</div>
+                <div className='error'>{errorCount}</div>
               </div>
             </div>
           </div>
-          <div className=''></div>
         </div>
       </div>
       <div className='test-result-container'>
         <div className='test-result-table'>
           <div className='tr'>
-            <div className='th conc-sequence'>sequence</div>
+            <div className='th conc-sequence'>순번</div>
             <div className='th conc-test-date'>검사 날짜</div>
             <div className='th measurement-score'>성공</div>
             <div className='th score-gap'>성공 차이</div>
@@ -123,12 +125,12 @@ export default function ConcentrationTestComplete() {
             <div className='th error-gap'>오류 차이</div>
           </div>
           {viewList.map((conc, index) => 
-            <TableItem concentrationTest={conc} />
+          <TableItem key={index} concentrationTest={conc} />
           )}
         </div>
         <div className='pagination-container'>
           {totalSection !== 0 &&
-          <Pagination
+          <Pagination 
             currentPage={currentPage}
             currentSection={currentSection}
             totalSection={totalSection}

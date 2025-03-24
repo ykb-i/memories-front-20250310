@@ -48,67 +48,68 @@ export default function DiaryDetail() {
     feeling === '보통' ? 'feeling-icon normal' :
     feeling === '슬픔' ? 'feeling-icon sad' :
     feeling === '분노' ? 'feeling-icon angry' : '';
+
   // function: 네비게이터 함수 //
   const navigator = useNavigate();
 
   // function: get diary response 처리 함수 //
   const getDiaryResponse = (responseBody: GetDiaryResponseDto | ResponseDto | null) => {
-    const message = 
+    const message =
       !responseBody ? '서버에 문제가 있습니다.' :
       responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
       responseBody.code === 'AF' ? '인증에 실패했습니다.' :
       responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' : '';
 
-      const isSuccess = responseBody !== null && responseBody.code === 'SU';
-      
-      if(!isSuccess){
-        alert(message);
-        navigator(DIARY_ABSOLUTE_PATH);
-        return;
-      }
+    const isSuccess = responseBody !== null && responseBody.code === 'SU';
 
-      const { writerId, writeDate, weather, feeling, title, content } = responseBody as GetDiaryResponseDto;
-     
-      setWriterId(writerId);
-      setWriteDate(writeDate);
-      setWeather(weather);
-      setFeeling(feeling);
-      setTitle(title);
-      setContent(content);
+    if (!isSuccess) {
+      alert(message);
+      navigator(DIARY_ABSOLUTE_PATH);
+      return;
+    }
+
+    const { writerId, writeDate, weather, feeling, title, content } = responseBody as GetDiaryResponseDto;
+    setWriterId(writerId);
+    setWriteDate(writeDate);
+    setWeather(weather);
+    setFeeling(feeling);
+    setTitle(title);
+    setContent(content);
   };
 
   // function: delete diary response 처리 함수 //
   const deleteDiaryResponse = (responseBody: ResponseDto | null) => {
-    const message = 
+    const message =
       !responseBody ? '서버에 문제가 있습니다.' :
       responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
       responseBody.code === 'AF' ? '인증에 실패했습니다.' :
-      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' : 
-      responseBody.code === 'NT' ? '권한이 없습니다.' : '';
-
+      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' :
+      responseBody.code === 'NP' ? '권한이 없습니다.' : '';
+    
     const isSuccess = responseBody !== null && responseBody.code === 'SU';
-    if(!isSuccess){
+    if (!isSuccess) {
       alert(message);
       return;
     }
 
     alert('삭제에 성공했습니다.');
     navigator(DIARY_ABSOLUTE_PATH);
-  }
+  };
 
   // event handler: 삭제 버튼 클릭 이벤트 처리 //
   const onDeleteClickHandler = () => {
-    if(!diaryNumber) return;
+    if (!diaryNumber || !accessToken) return;
     const isConfirm = window.confirm('정말로 삭제하시겠습니까?');
-    if(!isConfirm) return;
+    if (!isConfirm) return;
+
     deleteDiaryRequest(diaryNumber, accessToken).then(deleteDiaryResponse);
-  }
+  };
 
   // event handler: 수정 버튼 클릭 이벤트 처리 //
   const onUpdateClickHandler = () => {
-    if(!diaryNumber) return;
+    if (!diaryNumber) return;
     navigator(DIARY_UPDATE_ABSOLUTE_PATH(diaryNumber));
-  }
+  };
 
   // effect: 컴포넌트 로드시 실행할 함수 //
   useEffect(() => {
@@ -117,17 +118,17 @@ export default function DiaryDetail() {
       navigator(DIARY_ABSOLUTE_PATH);
       return;
     }
-
     getDiaryRequest(diaryNumber, accessToken).then(getDiaryResponse);
   }, []);
 
-  // effect: 로그인 유저 아이디와 작성자 아이디가 변경될 시 실행할 함수 //
+  // effect: 로그인 유저 아이디와 작성자 아이디가 변경될시 실행할 함수 //
   useEffect(() => {
-    if(writerId && userId && writerId !== userId){
+    if (writerId && userId && writerId !== userId) {
       alert('권한이 없습니다.');
       navigator(DIARY_ABSOLUTE_PATH);
     }
   }, [writerId, userId]);
+
   // render: 일기 상세 화면 컴포넌트 렌더링 //
   return (
     <div id='diary-detail-wrapper'>
@@ -156,7 +157,8 @@ export default function DiaryDetail() {
           </div>
           <div className='content-box'>
             <div className='title' style={{ alignSelf: 'start' }}>내용</div>
-            <div className='content' style={{ flex: 1, display:'block' }} dangerouslySetInnerHTML={{__html:content}}/>
+            <div className='content' style={{ flex: 1, display: 'block' }} dangerouslySetInnerHTML={{ __html: content }} />
+            <hr/>
           </div>
           <div className='button-box'>
             <div className='button middle error' onClick={onDeleteClickHandler}>삭제</div>

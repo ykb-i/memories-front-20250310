@@ -1,4 +1,4 @@
-#memory-test-wrapper{
+#memory-test-wrapper {
   margin: 0 auto;
   width: 1180px;
 }
@@ -22,14 +22,14 @@
 }
 
 #memory-test-wrapper .description-box .title {
-  color: var(--Lightmode--Grey);
+  color: var(--Lightmode-Grey);
 
   font-size: 24px;
   font-weight: 700;
 }
 
 #memory-test-wrapper .description-box .description {
-  color: var(--Lightmode--Grey);
+  color: var(--Lightmode-Grey);
 
   font-size: 16px;
   font-weight: 400;
@@ -59,7 +59,9 @@
 
 #memory-test-wrapper .card-container .reversed-card {
   background-image: url(src/assets/images/question-mark.png);
-  background-repeat: no-repeat;
-  background-position: center;
   background-color: rgba(110, 125, 147, 1);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+
+  cursor: pointer;
 }

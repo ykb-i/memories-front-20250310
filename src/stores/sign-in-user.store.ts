@@ -1,20 +1,20 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 // interface: 로그인 유저 정보 상태 구조 //
 interface SignInUserStore {
   userId: string;
   name: string;
-  profileImage: string | null;  
+  profileImage: string | null;
   address: string;
   detailAddress: string | null;
   gender: string | null;
   age: number | null;
 
-  setUserId: (userId:string) => void;
+  setUserId: (userId: string) => void;
   setName: (name: string) => void;
   setProfileImage: (profileImage: string | null) => void;
   setAddress: (address: string) => void;
-  setDetailAddress: (detailAddress: string | null) => void;
+  setDetailAddress: (detailAdress: string | null) => void;
   setGender: (gender: string | null) => void;
   setAge: (age: number | null) => void;
 
@@ -39,16 +39,16 @@ const useStore = create<SignInUserStore>(set => ({
   setGender: (gender: string | null) => set(state => ({ ...state, gender })),
   setAge: (age: number | null) => set(state => ({ ...state, age })),
 
-  resetSignInUser: () => set(state => ({
+  resetSignInUser: () => set(state => ({ 
+    ...state, 
     userId: '',
     name: '',
     profileImage: null,
     address: '',
     detailAddress: null,
     gender: null,
-    age: null
+    age: null,
   }))
-
 }));
 
 export default useStore;

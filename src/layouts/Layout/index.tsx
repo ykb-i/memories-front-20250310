@@ -23,7 +23,7 @@ export default function Layout() {
   const myContentListRef = useRef<HTMLDivElement | null>(null);
 
   // state: 로그인 유저 정보 상태 //
-  const { setUserId, setName, setProfileImage, setDetailAddress, setAddress, setGender, setAge, resetSignInUser } = useSignInUserStore();
+  const { setUserId, setName, setProfileImage, setAddress, setDetailAddress, setGender, setAge, resetSignInUser } = useSignInUserStore();
 
   // state: My Content 드롭다운 상태 //
   const [showMyContent, setShowMyContent] = useState<boolean>(false);
@@ -43,8 +43,8 @@ export default function Layout() {
       responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
       responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess =  responseBody !== null && responseBody.code === 'SU';
-    if(!isSuccess){
+    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    if (!isSuccess) {
       alert(message);
       removeCookie(ACCESS_TOKEN, { path: ROOT_PATH });
       resetSignInUser();
@@ -59,7 +59,7 @@ export default function Layout() {
     setDetailAddress(detailAddress);
     setGender(gender);
     setAge(age);
-  }
+  };
 
   // event handler: 홈 클릭 이벤트 처리 //
   const onHomeClickHandler = () => {
@@ -92,11 +92,11 @@ export default function Layout() {
     resetSignInUser();
   };
 
-  // effect: cookie의 accessToekn이 변경될 시 실행할 함수 //
+  // effect: cookie의 accessToken이 변경될 시 실행할 함수 //
   useEffect(() => {
-    if(!cookies[ACCESS_TOKEN]) return;
+    if (!cookies[ACCESS_TOKEN]) return;
     getSignInUserRequest(cookies[ACCESS_TOKEN]).then(getSignInUserResponse);
-  },[cookies[ACCESS_TOKEN]])
+  }, [cookies[ACCESS_TOKEN]]);
 
   // effect: cookie의 accessToken과 경로가 변경될 시 실행할 함수 //
   useEffect(() => {

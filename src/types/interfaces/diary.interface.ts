@@ -1,9 +1,9 @@
-import { Feeling, Weather } from "../aliases";
+import { Feeling, Weather } from 'src/types/aliases';
 
-export default interface Diary{
-    diaryNumber: number;
-    writeDate: string;
-    title: string;
-    weather: Weather;
-    feeling: Feeling;
+export default interface Diary {
+  diaryNumber: number;
+  writeDate: string;
+  title: string;
+  weather: Weather;
+  feeling: Feeling;
 }

@@ -1,7 +1,7 @@
-import GetMemoryResponseDto from "./get-memory.response.dto";
-import GetConcentrationResponseDto from "./get-concentration.response.dto";
+import GetMemoryResponseDto from './get-memory.response.dto';
+import GetConcentrationResponseDto from './get-concentration.response.dto';
 
-export type{
+export type {
   GetMemoryResponseDto,
   GetConcentrationResponseDto
 }
