@@ -4,10 +4,13 @@ import { IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from './dto/req
 import { ResponseDto } from './dto/response';
 import { SignInResponseDto } from './dto/response/auth';
 import { PatchDiaryRequestDto, PostDiaryRequestDto } from './dto/request/diary';
-import { GetDiaryResponseDto, GetMyDiaryResponseDto } from './dto/response/diary';
+import { GetDiaryResponseDto, GetEmpathyResponseDto, GetMyDiaryResponseDto } from './dto/response/diary';
 import { GetSignInUserResponseDto } from './dto/response/user';
 import { PostConcentrationRequestDto, PostMemoryRequestDto } from './dto/request/test';
 import { GetConcentrationResponseDto, GetMemoryResponseDto, GetRecentlyConcentrationResponseDto, GetRecentlyMemoryResponseDto } from './dto/response/test';
+import { PatchUserRequestDto } from './dto/request/user';
+import { GetWayRequestDto } from './dto/request/openai';
+import { GetWayResponseDto } from './dto/response/openai';
 
 // variable: URL 상수 //
 const API_DOMAIN = process.env.REACT_APP_API_DOMAIN;
@@ -26,12 +29,15 @@ const GET_MY_DIARY_URL = `${DIARY_MODULE_URL}/my`;
 const GET_DIARY_URL = (diaryNumber: number | string) => `${DIARY_MODULE_URL}/${diaryNumber}`;
 const PATCH_DIARY_URL = (diaryNumber: number | string) => `${DIARY_MODULE_URL}/${diaryNumber}`;
 const DELETE_DIARY_URL = (diaryNumber: number | string) => `${DIARY_MODULE_URL}/${diaryNumber}`;
+const PUT_EMPATHY_URL = (diaryNumber: number | string) => `${DIARY_MODULE_URL}/${diaryNumber}`;
+const GET_EMPATHY_URL = (diaryNumber: number | string) => `${DIARY_MODULE_URL}/${diaryNumber}`;
 
 const multipartFormData =  { headers: { 'Content-Type': 'multipart/form-data' } };
 
 const USER_MODULE_URL = `${API_DOMAIN}/api/v1/user`;
 
 const GET_SIGN_IN_USER_URL = `${USER_MODULE_URL}/sign-in`;
+const PATCH_USER_URL = `${USER_MODULE_URL}`;
 
 const TEST_MODULE_URL = `${API_DOMAIN}/api/v1/test`;
 
@@ -42,6 +48,9 @@ const GET_CONCENTRATION_URL = `${TEST_MODULE_URL}/concentration`;
 const GET_RECENTLY_MEMORY_URL = `${TEST_MODULE_URL}/memory/recently`;
 const GET_RECENTLY_CONCENTRATION_URL = `${TEST_MODULE_URL}/concentration/recently`;
 
+const OPEN_AI_MODULE_URL = `${API_DOMAIN}/api/v1/open-ai`
+
+const GET_WAY_URL = `${OPEN_AI_MODULE_URL}/way`;
 const FILE_UPLOAD_URL = `${API_DOMAIN}/file/upload`;
 
 // function: Authorization Bearer 헤더 //
@@ -125,6 +134,23 @@ export const deleteDiaryRequest = async (diaryNumber: number | string, accessTok
   return responseBody;
 };
 
+// function: get empathy API 요청 함수 //
+export const GetEmpathyRequest = async (diaryNumber: number | string, accessToken: string) => {
+  const responseBody = await axios.get(GET_EMPATHY_URL(diaryNumber), bearerAuthorization(accessToken))
+    .then(responseSuccessHandler<GetEmpathyResponseDto>)
+    .catch(responseErrorHandler);
+  return responseBody;
+}
+
+// function: put empathy API 요첨 함수 //
+// put의 두번째 매개변수는 requestBody를 전달해줘야 하기 때문에에 빈 객체를 하나 넣어준다.
+export const putEmpathyRequest = async (diaryNumber: number | string, accessToken:string) => {
+  const responseBody = await axios.put(PUT_EMPATHY_URL(diaryNumber), {}, bearerAuthorization(accessToken))
+    .then(responseSuccessHandler)
+    .catch(responseErrorHandler);
+  return responseBody;
+}
+
 // function: get sign in user API 요청 함수 //
 export const getSignInUserRequest = async (accessToken: string) => {
   const responseBody = await axios.get(GET_SIGN_IN_USER_URL, bearerAuthorization(accessToken))
@@ -132,6 +158,15 @@ export const getSignInUserRequest = async (accessToken: string) => {
     .catch(responseErrorHandler);
   return responseBody;
 };
+
+// function: patch user api 요청 함수 //
+export const patchUserRequest = async (requestBody: PatchUserRequestDto, accessToken: string) => {
+  const responseBody = await axios.patch(PATCH_USER_URL, requestBody, bearerAuthorization(accessToken))
+    .then(responseSuccessHandler)
+    .catch(responseErrorHandler)
+
+  return responseBody;
+}
 
 // function: post memory API 요청 함수 //
 export const postMemoryRequest = async (requestBody: PostMemoryRequestDto, accessToken: string) => {
@@ -183,6 +218,14 @@ export const getRecentlyConcentrationRequest = async (accessToken: string) => {
   return responseBody;
 }
 
+// function: get way 요청 함수 //
+export const getWayRequest = async (requestBody: GetWayRequestDto, accessToken: string) => {
+  const responseBody = await axios.post(GET_WAY_URL, requestBody, bearerAuthorization(accessToken))
+    .then(responseSuccessHandler<GetWayResponseDto>)
+    .catch(responseErrorHandler)
+  return responseBody;
+}
+
 // function: file upload 요청 함수 //
 export const fileUploadRequest = async (requestBody: FormData) => {
   // json 형태로 보내지 않기 위해서 Content-Type 변환을 해줘야함
@@ -192,3 +235,4 @@ export const fileUploadRequest = async (requestBody: FormData) => {
 
   return responseBody;
 }
+
