@@ -9,6 +9,7 @@ import { getMyDiaryRequest } from 'src/apis';
 import { useCookies } from 'react-cookie';
 import { GetMyDiaryResponseDto } from 'src/apis/dto/response/diary';
 import { ResponseDto } from 'src/apis/dto/response';
+import { responseMessage } from 'src/utils';
 
 // variable: 점보트론 컨텐츠 //
 const JUMBOTRON_CONTENT = '일기 작성은 하루의 사건, 감정, 생각을 기록하여 단기 기억 능력 향상에 도움을 주며,\n장기 기억으로 변환하는데 도움을 줍니다.\n\n일기를 쓰는 행위 자체가 주의를 기울이는 활동이므로 주의력 및\n집중력 향상에 도움을 줍니다.\n\n일기 작성을 통해 단어를 떠올리고 문장을 조작하는 능력을 지속적으로\n연습하여 언어 능력 유지에 도움을 줍니다.';
@@ -76,12 +77,9 @@ export default function DiaryMain() {
 
   // function: get my diary response 처리 함수 //
   const getMyDiaryResponse = (responseBody: GetMyDiaryResponseDto | ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;

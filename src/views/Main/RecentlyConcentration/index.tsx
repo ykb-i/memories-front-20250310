@@ -24,6 +24,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import Modal from 'src/components/Modal';
 import Way from 'src/components/Way';
+import { responseMessage } from 'src/utils';
 
 // description: chartjs에서 사용할 요소 등록 //
 ChartJs.register(
@@ -78,12 +79,8 @@ export default function RecentlyConcentration() {
   const navigator = useNavigate();
   // function: get recently concentration response 처리 함수 //
   const getRecentlyConcentrationResponse = (responseBody: GetRecentlyConcentrationResponseDto | ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
 
     if (!isSuccess) {
       alert(message);

@@ -10,6 +10,7 @@ import { getMemoryRequest } from 'src/apis';
 import { useCookies } from 'react-cookie';
 import { GetMemoryResponseDto } from 'src/apis/dto/response/test';
 import { ResponseDto } from 'src/apis/dto/response';
+import { responseMessage } from 'src/utils';
 
 // interface: 기억력 검사 테이블 레코드 컴포넌트 속성 //
 interface TableItemProps {
@@ -61,12 +62,9 @@ export default function MemoryTestComplete() {
 
   // function: get memory response 처리 함수 //
   const getMemoryResponse = (responseBody: GetMemoryResponseDto | ResponseDto | null) => {
-    const message =
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;

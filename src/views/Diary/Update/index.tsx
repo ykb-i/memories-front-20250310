@@ -12,6 +12,7 @@ import { ResponseDto } from 'src/apis/dto/response';
 import { useNavigate, useParams } from 'react-router';
 import { GetDiaryResponseDto } from 'src/apis/dto/response/diary';
 import { useSignInUserStore } from 'src/stores';
+import { responseMessage } from 'src/utils';
 
 // component: 일기 수정 화면 컴포넌트 //
 export default function DiaryUpdate() {
@@ -94,13 +95,9 @@ export default function DiaryUpdate() {
 
   // function: get diary response 처리 함수 //
   const getDiaryResponse = (responseBody: GetDiaryResponseDto | ResponseDto | null) => {
-    const message =
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : 
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : 
-      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       navigator(DIARY_ABSOLUTE_PATH);
@@ -118,14 +115,9 @@ export default function DiaryUpdate() {
 
   // function: patch diary response 처리 함수 //
   const patchDiaryResponse = (responseBody: ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' :
-      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' :
-      responseBody.code === 'NP' ? '권한이 없습니다.' : '';
+
+    const { isSuccess, message } = responseMessage(responseBody);
     
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
     if (!isSuccess) {
       alert(message);
       return;

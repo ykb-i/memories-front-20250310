@@ -11,6 +11,7 @@ import { ResponseDto } from 'src/apis/dto/response';
 import './style.css';
 import { useNavigate } from 'react-router';
 import { ACCESS_TOKEN, MAIN_ABSOLUTE_PATH, ROOT_PATH } from 'src/constants';
+import { responseMessage } from 'src/utils';
 
 
 // interface: 로그인 컴포넌트 속성 //
@@ -40,12 +41,9 @@ export default function SignIn(props: Props) {
 
   // function: sign in response 처리 함수 //
   const signInResponse = (responseBody: SignInResponseDto | ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다' :
-      responseBody.code === 'SF' ? '로그인 정보가 일치하지 않습니다' : '';
+    
+    const { isSuccess, message } = responseMessage(responseBody);
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
     if (!isSuccess) {
       setUserPasswordMessage(message);
       return;

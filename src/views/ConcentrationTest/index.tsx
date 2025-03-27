@@ -7,6 +7,7 @@ import { PostConcentrationRequestDto } from 'src/apis/dto/request/test';
 import { useCookies } from 'react-cookie';
 import { ResponseDto } from 'src/apis/dto/response';
 import { useNavigate } from 'react-router';
+import { responseMessage } from 'src/utils';
 
 // variable: 전체 시간 (60초) //
 const TOTAL_TIME = 60 * 1000 ;
@@ -41,12 +42,9 @@ export default function ConcentrationTest() {
 
   // function: post concentration response 처리 함수 //
   const postConcentrationResponse = (responseBody: ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;

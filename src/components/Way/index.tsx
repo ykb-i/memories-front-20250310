@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie';
 import { getWayRequest } from 'src/apis';
-import { GetWayRequestDto } from 'src/apis/dto/request/openai';
+import { GetWayRequestBodyDto } from 'src/apis/dto/request/openai';
 import { ResponseDto } from 'src/apis/dto/response';
 import { GetWayResponseDto } from 'src/apis/dto/response/openai';
 import { ACCESS_TOKEN } from 'src/constants';
@@ -50,7 +50,7 @@ export default function Way({ type }: Props) {
   useEffect(() => {
     if (!accessToken) return;
     
-    const requestBody: GetWayRequestDto = {
+    const requestBody: GetWayRequestBodyDto = {
       type
     }
 

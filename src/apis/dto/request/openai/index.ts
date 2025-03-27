@@ -1,5 +1,5 @@
-import GetWayRequestDto from "./get-way.request.dto";
+import GetWayRequestBodyDto from "./get-way.request.dto";
 
 export type {
-  GetWayRequestDto
+  GetWayRequestBodyDto
 }

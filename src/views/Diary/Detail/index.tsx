@@ -1,14 +1,101 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 import './style.css';
 import { Feeling, Weather } from 'src/types/aliases';
-import { deleteDiaryRequest, getDiaryRequest, GetEmpathyRequest } from 'src/apis';
+import { deleteCommentRequest, deleteDiaryRequest, getCommentRequest, getDiaryRequest, getEmpathyRequest, postCommentRequest, putEmpathyRequest } from 'src/apis';
 import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN, DIARY_ABSOLUTE_PATH, DIARY_UPDATE_ABSOLUTE_PATH } from 'src/constants';
 import { useNavigate, useParams } from 'react-router';
-import { GetDiaryResponseDto, GetEmpathyResponseDto } from 'src/apis/dto/response/diary';
+import { GetCommentResponseDto, GetDiaryResponseDto, GetEmpathyResponseDto } from 'src/apis/dto/response/diary';
 import { ResponseDto } from 'src/apis/dto/response';
 import { useSignInUserStore } from 'src/stores';
+import { Comment } from 'src/types/interfaces';
+import { PostCommentRequestDto } from 'src/apis/dto/request/diary';
+
+import dayjs from 'dayjs';
+import { responseMessage } from 'src/utils';
+
+const SECOND_LIMIT = 60;
+const MINUTE_LIMIT = SECOND_LIMIT * 60;
+const HOUR_LIMIT = MINUTE_LIMIT * 24;
+
+// interface: 댓글 컴포넌트 속성 //
+interface Props {
+  commentItem: Comment;
+  comments: Comment[];
+  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
+}
+
+// component: 댓글 컴포넌트 //
+function CommentItem({ commentItem, comments, setComments }: Props) {
+
+  // state: 쿠키 상태 //
+  const [cookies] = useCookies();
+  // state: 경로 변수 상태 //
+  const { diaryNumber } = useParams();
+
+  const { commentWriterId, commentWriteDate, comment } = commentItem;
+
+  // variable: access token //
+  const accessToken = cookies[ACCESS_TOKEN];
+  // variable: 현재 시간 //
+  const now = dayjs();
+  // variable: 작성 시간 //
+  const writeDate = dayjs(commentWriteDate);
+  // variable: 초단위 작성 시간차 //
+  const diffWriteDate = now.diff(writeDate, 'second');
+  // variable: 작성 시간 문자열 //
+  const writeDateText = 
+    diffWriteDate < SECOND_LIMIT ? `${diffWriteDate}초 전` :
+    diffWriteDate < MINUTE_LIMIT ? `${Math.floor(diffWriteDate / SECOND_LIMIT)}분 전`:
+    diffWriteDate < HOUR_LIMIT ? `${Math.floor(diffWriteDate / MINUTE_LIMIT)}시간 전`: `${Math.floor(diffWriteDate / HOUR_LIMIT)}일 전`;
+  
+
+  // function: delete comment response 처리 함수 //
+  const deleteCommentResponse = (responseBody: ResponseDto | null) => {
+    const { isSuccess, message } = responseMessage(responseBody);
+
+    if(!isSuccess) {
+      alert(message);
+      return;
+    }
+
+    alert('삭제에 성공했습니다.');
+    
+    if(!diaryNumber) return;
+    setComments(prevComments => prevComments.filter(c => c.commentNumber !== commentItem.commentNumber));
+  } 
+  
+  // event handler: 댓글 삭제 버튼 클릭 이벤트 //
+  const onDeleteClickHandler = () => {
+    if(!accessToken || !diaryNumber) return;
+    
+    const { commentNumber } = commentItem;
+
+    deleteCommentRequest(diaryNumber, commentNumber, accessToken).then(deleteCommentResponse);
+  }
+    
+  // render: 댓글 컴포넌트 렌더링 //
+  return (
+    <div className='comment-box'>
+      <div className='comment-top'>
+        <div className='title-box'>
+          <div className='title'>{commentWriterId}</div>
+          <div className='divider'></div>
+          <div className='write-date'>{writeDateText}</div>
+        </div>
+        <div className='button-box'>
+          <div className='button error small' onClick={onDeleteClickHandler}>삭제</div>
+          <div className='button second small'>수정</div>
+        </div>
+      </div>
+    
+      <div className='content-button-box'>
+        <div className='comment'>{comment}</div>
+      </div>
+    </div>
+  )
+}
 
 // component: 일기 상세 화면 컴포넌트 //
 export default function DiaryDetail() {
@@ -30,8 +117,12 @@ export default function DiaryDetail() {
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
 
+  // state: 댓글 상태 //
+  const [comment, setComment] = useState<string>('');
   // state: 공감한 사용자 리스트 상태 //
   const [empathies, setEmpathies] = useState<string[]>([]);
+  // state: 댓글 리스트 상태 //
+  const [comments, setComments] = useState<Comment[]>([]);
 
   // variable: access token //
   const accessToken = cookies[ACCESS_TOKEN];
@@ -53,20 +144,17 @@ export default function DiaryDetail() {
     feeling === '분노' ? 'feeling-icon angry' : '';
 
   // variable: 공감 여부 //
-  
+  const isEmpathize = empathies.includes(userId);
+  // variable: 공감 클래스 //
+  const empathyClass = isEmpathize ? 'icon empathy' : 'icon empathy-empty';
 
   // function: 네비게이터 함수 //
   const navigator = useNavigate();
 
   // function: get diary response 처리 함수 //
   const getDiaryResponse = (responseBody: GetDiaryResponseDto | ResponseDto | null) => {
-    const message =
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' :
-      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
 
     if (!isSuccess) {
       alert(message);
@@ -85,11 +173,9 @@ export default function DiaryDetail() {
 
   // function: get empathy response 처리 함수 //
   const getEmpathyResponse = (responseBody: GetEmpathyResponseDto | ResponseDto | null) => {
-    const message =
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
-    
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;
@@ -99,16 +185,40 @@ export default function DiaryDetail() {
     setEmpathies(empathies);
   }
 
+  // function: get comment response 처리 함수 //
+  const getCommentResponse = (responseBody: GetCommentResponseDto | ResponseDto | null) => {
+    
+    const { isSuccess, message } = responseMessage(responseBody);
+    
+    if (!isSuccess) {
+      alert(message);
+      return;
+    }
+
+    const { comments } = responseBody as GetCommentResponseDto;
+    setComments(comments);
+  }
+
+  // function: post comment response 처리 함수 //
+  const postCommentResponse = (responseBody: ResponseDto | null) => {
+
+    const { isSuccess, message } = responseMessage(responseBody);
+
+    if (!isSuccess) {
+      alert(message);
+      return;
+    }
+
+    setComment('');
+    if(!diaryNumber || !accessToken) return;
+    getCommentRequest(diaryNumber, accessToken).then(getCommentResponse);
+  }
+
   // function: delete diary response 처리 함수 //
   const deleteDiaryResponse = (responseBody: ResponseDto | null) => {
-    const message =
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' :
-      responseBody.code === 'ND' ? '존재하지 않는 일기입니다.' :
-      responseBody.code === 'NP' ? '권한이 없습니다.' : '';
-    
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;
@@ -117,6 +227,27 @@ export default function DiaryDetail() {
     alert('삭제에 성공했습니다.');
     navigator(DIARY_ABSOLUTE_PATH);
   };
+
+  // function: put empathy response 처리 함수 //
+  const putEmpathyResponse = (responseBody: ResponseDto | null) => {
+
+    const { isSuccess, message } = responseMessage(responseBody);
+    
+    if (!isSuccess) {
+      alert(message);
+      return;
+    }
+    if(!diaryNumber || !accessToken) return;
+    
+    getEmpathyRequest(diaryNumber, accessToken).then(getEmpathyResponse);
+    
+  }
+
+  // event handler: 댓글 변경 이벤트 처리 //
+  const onCommentChangeHandler = (event:ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = event.target;
+    setComment(value);
+  }
 
   // event handler: 삭제 버튼 클릭 이벤트 처리 //
   const onDeleteClickHandler = () => {
@@ -133,6 +264,23 @@ export default function DiaryDetail() {
     navigator(DIARY_UPDATE_ABSOLUTE_PATH(diaryNumber));
   };
 
+  // event handler: 공감 버튼 클릭 이벤트 처리 //
+  const onEmpathyClickHandler = () => {
+    if (!diaryNumber || !accessToken) return;
+    putEmpathyRequest(diaryNumber, accessToken).then(putEmpathyResponse);
+  }
+
+  // event handler: 댓글 작성 클릭 이벤트 처리 //
+  const onPostCommentClickHandler = () => {
+    if(!diaryNumber || !accessToken || !comment.trim()) return;
+    
+    const requestBody: PostCommentRequestDto = {
+      comment
+    }
+
+    postCommentRequest(requestBody, diaryNumber, accessToken).then(postCommentResponse);
+  }
+
   // effect: 컴포넌트 로드시 실행할 함수 //
   useEffect(() => {
     if(!accessToken) return;
@@ -141,7 +289,8 @@ export default function DiaryDetail() {
       return;
     }
     getDiaryRequest(diaryNumber, accessToken).then(getDiaryResponse);
-    GetEmpathyRequest(diaryNumber, accessToken).then(getEmpathyResponse);
+    getEmpathyRequest(diaryNumber, accessToken).then(getEmpathyResponse);
+    getCommentRequest(diaryNumber, accessToken).then(getCommentResponse);
   }, []);
 
   // render: 일기 상세 화면 컴포넌트 렌더링 //
@@ -184,13 +333,22 @@ export default function DiaryDetail() {
           <div className='sub-container'>
             <div className='header'>
               <div className='sub-box'>
-                <div className='icon empathy'></div>
+                <div className={empathyClass} onClick={onEmpathyClickHandler}></div>
                 {empathies.length}
               </div>
               <div className='sub-box'>
                 <div className='icon comment'></div>
-                {empathies.length}
+                {comments.length}
               </div>
+            </div>
+            <div className='body'>
+              {comments.map((commentItem, index) => 
+                <CommentItem key={index} commentItem={commentItem} comments={comments} setComments={setComments}/>
+              )}
+            </div>
+            <div className='footer'>
+              <textarea value={comment} onChange={onCommentChangeHandler}/>
+              <div className='button second stretch' onClick={onPostCommentClickHandler}>작성</div>
             </div>
           </div>
         </div>

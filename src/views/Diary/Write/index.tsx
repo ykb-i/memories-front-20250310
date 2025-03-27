@@ -12,6 +12,7 @@ import { ACCESS_TOKEN, DIARY_ABSOLUTE_PATH } from 'src/constants';
 import { PostDiaryRequestDto } from 'src/apis/dto/request/diary';
 import { ResponseDto } from 'src/apis/dto/response';
 import { useNavigate } from 'react-router';
+import { responseMessage } from 'src/utils';
 
 // component: 일기 작성 화면 컴포넌트 //
 export default function DiaryWrite() {
@@ -89,12 +90,9 @@ export default function DiaryWrite() {
 
   // function: post diary response 처리 함수 //
   const postDiaryResponse = (responseBody: ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
-    
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;

@@ -55,6 +55,7 @@
   grid-template-columns: 100px 100px 100px 100px;
   grid-template-rows: 100px 100px 100px 100px;
   gap: 40px;
+
 }
 
 #memory-test-wrapper .card-container .reversed-card {
@@ -64,4 +65,7 @@
   background-repeat: no-repeat;
 
   cursor: pointer;
+
+  transition: .4s;
+  transform-style: preserve-3d;
 }

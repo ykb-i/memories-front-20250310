@@ -10,6 +10,7 @@ import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN } from 'src/constants';
 import { ResponseDto } from 'src/apis/dto/response';
 import { useSignInUser } from 'src/hooks';
+import { responseMessage } from 'src/utils';
 
 // interface: 로그인 사용자 정보 수정 컴포넌트 속성 //
 interface UserUpdateProps {
@@ -65,12 +66,8 @@ function UserUpdate({ onModalViewChange }: UserUpdateProps) {
 
   // function: patch user response 처리 함수 //
   const patchUserResponse = (responseBody: ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
 
     if(!isSuccess) {
       alert(message);

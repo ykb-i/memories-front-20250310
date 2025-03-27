@@ -11,6 +11,7 @@ import { ResponseDto } from 'src/apis/dto/response';
 import { JOIN_TYPE, ROOT_PATH, SNS_ID } from 'src/constants';
 
 import './style.css';
+import { responseMessage } from 'src/utils';
 
 // interface: 회원가입 컴포넌트 속성 //
 interface Props {
@@ -87,14 +88,8 @@ export default function SignUp(props: Props) {
 
   // function: id check response 처리 함수 //
   const idCheckResponse = (responseBody: ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다' :
-      responseBody.code === 'EU' ? '이미 사용중인 아이디입니다' :
-      responseBody.code === 'VF' ? '아이디를 입력하세요' :
-        '사용 가능한 아이디입니다';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
 
     setUserIdMessage(message);
     setUserIdMessageError(!isSuccess);
@@ -103,13 +98,9 @@ export default function SignUp(props: Props) {
 
   // function: sign up response 처리 함수 //
   const signUpResponse = (responseBody: ResponseDto | null) => {
-    const message = 
-      !responseBody ? '서버에 문제가 있습니다' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다' :
-      responseBody.code === 'EU' ? '이미 사용중인 아이디입니다' :
-      responseBody.code === 'VF' ? '모두 입력해주세요' : '';
+
+    const { isSuccess, message } = responseMessage(responseBody);
     
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
     if (!isSuccess) {
       if (responseBody && responseBody.code === 'EU') {
         setUserIdMessage(message);

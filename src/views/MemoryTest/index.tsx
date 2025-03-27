@@ -8,6 +8,7 @@ import { postMemoryRequest } from 'src/apis';
 import { ResponseDto } from 'src/apis/dto/response';
 import { useNavigate } from 'react-router';
 import { useMemoryTestStore } from 'src/stores';
+import { responseMessage } from 'src/utils';
 
 // interface: 메모리 검사 카드 컴포넌트 속성 //
 interface CardProps {
@@ -27,7 +28,7 @@ function Card({ memoryCard, onClick }: CardProps) {
 
   // render: 메모리 검사 카드 컴포넌트 렌더링 //
   return (
-    <div style={{ backgroundColor: color }}></div>
+    <div style={{ backgroundColor: color, transition:'.4s', transformStyle:'preserve-3d', transform:'rotateY(180deg)' } }></div>
   )
 }
 
@@ -63,12 +64,9 @@ export default function MemoryTest() {
 
   // function: post memory response 처리 함수 //
   const postMemoryResponse = (responseBody: ResponseDto | null) => {
-    const message =
-      !responseBody ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
-      responseBody.code === 'AF' ? '인증에 실패했습니다.' : '';
 
-    const isSuccess = responseBody !== null && responseBody.code === 'SU';
+    const { isSuccess, message } = responseMessage(responseBody);
+
     if (!isSuccess) {
       alert(message);
       return;
